@@ -1,34 +1,42 @@
-<script lang="ts">
-import { defineComponent } from 'vue';
-import { useUserStore } from '../../stores/user';
-
-export default defineComponent({
-  setup() {
-    const store = useUserStore();
-    return {
-      store
-    };
-  },
-  methods: {
-    login() {
-      // this.store.fetchLoginState().then((data) => {
-      //   console.warn('!!!!!!!\n', false);
-      // })
-      this.store.setLoginState(true);
-      // setTimeout(function() {
-      // }, 5000);
-    }
-  },
-})
+<script setup lang="ts">
+  import { useUserStore } from '../../stores/user';
+  import { useRouter } from 'vue-router';
 </script>
 
+<script lang="ts">
+  export default {
+    data() {
+      const store = useUserStore();
+      const router = useRouter();
+      return {
+        store,
+        router,
+      };
+    },
+    methods: {
+      login() {
+        const _this = this;
+        this.store.login().then(() => {
+          _this.router.push('showsguide')
+        });
+      },
+      logout() {
+        this.store.logout();
+        this.router.push('/')
+      },
+    },
+    beforeMount() {
+      this.store.initialize();
+    },
+  }
+</script>
 
 <template>
   <section>
-    <button v-if="!store.isLoggedIn" @click="login">Login</button>
-    <div v-if="store.isLoggedIn">I am Logged In!</div>
+    <button class="button" v-if="!store.isLoggedIn" @click="login">Login</button>
+    <button class="button" v-if="store.isLoggedIn" @click="logout">Logout</button>
   </section>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 </style>
