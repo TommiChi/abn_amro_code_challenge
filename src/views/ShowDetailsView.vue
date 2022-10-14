@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import { useShowsStore } from '../stores/shows';
+  import { pureString } from '../helpers';
 </script>
 
 <script lang="ts">
@@ -100,7 +101,7 @@
       </section>
       <section class="show__details">
         <h2>{{ store.selectedEpisode?.name }}</h2>
-        <p>{{ store.selectedEpisode?.show?.summary?.replace(/(\<\w+\>)|(\<\/\w+\>)/g, '') }}</p>
+        <p>{{ pureString(store.selectedEpisode?.show?.summary) }}</p>
         <a :href="store.selectedEpisode?.show?.officialSite" class="button" target="_blank">WATCH IT NOW</a>
       </section>
     </main>

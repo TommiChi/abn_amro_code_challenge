@@ -2,22 +2,27 @@
   import { RouterLink } from 'vue-router';
   import { useShowsStore } from '../stores/shows';
   import { useRoute } from 'vue-router';
+  import { pureString } from '../helpers';
+  import { reactive } from 'vue';
 </script>
 
 <script lang="ts">
   type IStore = {
     forYouToday: { [key: string]: any; };
     today: { [key: string]: any; };
+    genres: { [key: string]: any; };
   };
 
   export default {
     data() {
       const store: IStore = useShowsStore();
+
       return {
         store,
         _rotateX: 'rotateX(0)',
         _rotateY: 'rotateY(0)',
         _rotateZ: 'rotateZ(0)',
+        genres: { ...store.genres },
       };
     },
     methods: {
@@ -46,7 +51,61 @@
       },
       setKey (prefix: string, suffix: string | number) {
         return `${prefix}-${suffix.toString().replace(/\s/g, '-')}`
-      }
+      },
+      galleryScroll (genreName: string|number, direction: string) {
+        const genre = this.genres[genreName];
+        const a: HTMLElement[] = this.$refs[`container_${genreName}`] as HTMLElement[];
+        const container: HTMLElement = a[0];
+        const child: HTMLElement = container.children[0] as HTMLElement;
+        const count = Math.floor(container.offsetWidth / child.offsetWidth);
+
+        if (count >= genre.length) {
+          return;
+        }
+            
+        const scrollDirection: any = {
+          left: () => {
+            let lastItem = genre.length;
+            if (genre[0].scroll === 'left') {
+              genre[0].scroll = '';
+              genre.splice(lastItem - count, count);
+              lastItem -= count;
+            } else if (genre[0].scroll === 'right') {
+              genre.splice(0, count);
+              lastItem -= count;
+            }
+
+            setTimeout(() => {
+              const args = new Array(count).fill(null).map((...[, index]) => {
+                return ({ ...genre[lastItem - count + index] })
+              });
+              args[0].scroll = 'left';
+              genre.unshift(...args);
+            }, 0);
+          },
+          right: () => {
+            let lastItem = genre.length;
+            if (genre[0].scroll === 'right') {
+              genre.splice(0, count);
+              lastItem -= count;
+            } else if (genre[0].scroll === 'left') {
+              genre[0].scroll = '';
+              genre.splice(lastItem - count, count);
+              lastItem -= count;
+            }
+
+            setTimeout(() => {
+              const args = new Array(count).fill(null).map((...[, index]) => {
+                return ({ ...genre[index] })
+              });
+              genre.push(...args);
+              genre[0].scroll = 'right';
+            }, 0);
+          },
+        };
+
+        scrollDirection[direction]();
+      },
     },
     computed: {
       rotateX () {
@@ -62,27 +121,6 @@
         return `linear-gradient(0deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.7) 100%), url(${this.store.forYouToday.show?.image.original})`;
       },
       genres () {
-        /* This should normally live in a middleware/BFF service, but for this demo I am keeping it here to avoid going too overkill in terms of effort */
-        const genres: any = {};
-        this.store.today?.forEach?.(({ show, airtime, id, name }: any) => {
-          show.genres.forEach((genre: string) => {
-            if (!genres[genre]) {
-              genres[genre] = [];
-            }
-            genres[genre].push({ ...show, airtime, episodeId: id, episodeName: name });
-          })
-        });
-        
-        for(const genre in genres) {
-          const result  = [];
-          const data = genres[genre];
-          while(data.length > 0) {
-            result.push(data.splice(Math.floor(Math.random() * data.length), 1)[0]);
-          }
-          genres[genre] = result;
-        }
-
-        return genres;
       },
     },
   }
@@ -93,17 +131,17 @@
       <section class="hero">
         <img class="hero__image"  :src="store.forYouToday.show?.image.original || ''" />
         <h2 class="hero__info">{{ store.forYouToday.show?.name }}</h2>
-        <p class="hero__info">{{ store.forYouToday.show?.summary.replace(/(\<\w+\>)|(\<\/\w+\>)/g, '') }}</p>
+        <p class="hero__info">{{ pureString(store.forYouToday.show?.summary) }}</p>
         <a target="_blank" :href="store.forYouToday.show?.officialSite" class="hero__info button" v-if="store.forYouToday.show?.officialSite">Discover</a>
       </section>
       <section class="recommendations">
         <h2>What's on Today?</h2>
-        <article v-for="(genre, name) in genres" class="gallery" :key="setKey('article', name)">
+        <article v-for="(genre, name) in $data.genres" class="gallery" :key="setKey('article', name)">
           <h3 class="gallery__title">{{ name }}</h3>
           <div class="gallery__wrapper">
-            <button class="carousel-arrow fa fa-angle-left"></button>
-            <ul class="gallery__itemlist">
-              <li v-for="(show, index) in genre" class="gallery__item" :key="index">
+            <button class="carousel-arrow fa fa-angle-left" @click="galleryScroll(name, 'left')"></button>
+            <ul class="gallery__itemlist" :ref="`container_${name}`">
+              <li v-for="(show, index) in genre" :class="`gallery__item${show.scroll ? ` ${show.scroll}` : ''}`" :key="index">
                 <RouterLink class="item__3dwrapper" @mousemove="tilt" @mouseenter="onEnter" @mouseleave="onLeave" :to="`/shows/${show.episodeId}`">
                   <img :src="show?.image?.original" class="item__image" />
                   <div class="item__info">
@@ -114,7 +152,7 @@
                 </RouterLink>
               </li>
             </ul>
-            <button class="carousel-arrow fa fa-angle-right"></button>
+            <button class="carousel-arrow fa fa-angle-right" @click="galleryScroll(name, 'right')"></button>
           </div>
         </article>
       </section>
@@ -229,6 +267,16 @@
 
       &__item {
         transition: all 0.2s;
+
+        &.right {
+          animation: scrollRight 0.3s ease-out 1;
+          animation-fill-mode: forwards;
+        }
+
+        &.left {
+          animation: scrollLeft 0.3s ease-out 1;
+          animation-fill-mode: forwards;
+        }
       }
     }
 
@@ -286,6 +334,7 @@
       font-size: 50px;
       overflow: hidden;
       position: relative;
+      background-color: transparent;
 
       &:after {
         content: "";
@@ -309,6 +358,24 @@
 
       &.fa-angle-left:after {
         background-image: linear-gradient(90deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 100%);
+      }
+    }
+
+    @keyframes scrollRight {
+      0% {
+        margin-left: 0%;
+      }
+      100% {
+        margin-left: -100%;
+      }
+    }
+
+    @keyframes scrollLeft {
+      0% {
+        margin-left: -100%;
+      }
+      100% {
+        margin-left: 0%;
       }
     }
   </style>
