@@ -2,17 +2,6 @@ import { ref, computed } from 'vue';
 import { defineStore } from 'pinia';
 import { getShows, getByDay, getEpisode } from '../services/tvmaze';
 
-type ForYouYoday = {
-  show: {
-    name: string;
-    image: {
-      original: string;
-    };
-    summary: string;
-    officialSite: string;  
-  };
-};
-
 export const useShowsStore = defineStore('shows', {
   state: () => {
     return { 
@@ -70,7 +59,7 @@ export const useShowsStore = defineStore('shows', {
   getters: {
     shows: state => state._shows,
     today: state => state._today,
-    forYouToday: (state): ForYouYoday => state._forYouToday,
+    forYouToday: (state) => state._forYouToday,
     selectedEpisode: state => state._selectedEpisode,
     detailsPath: state => state._detailsPath,
   },

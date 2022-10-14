@@ -5,9 +5,14 @@
 </script>
 
 <script lang="ts">
+  type IStore = {
+    forYouToday: { [key: string]: any; };
+    today: { [key: string]: any; };
+  };
+
   export default {
     data() {
-      const store = useShowsStore();
+      const store: IStore = useShowsStore();
       return {
         store,
         _rotateX: 'rotateX(0)',
@@ -16,14 +21,16 @@
       };
     },
     methods: {
-      onEnter (event) {
-        (event.currentTarget || event.target).classList.add('active');
+      onEnter (event: MouseEvent) {
+        const element = (event.currentTarget || event.target) as Element;
+        element.classList.add('active');
       },
-      onLeave (event){
-        (event.currentTarget || event.target).classList.remove('active');
+      onLeave (event: MouseEvent) {
+        const element = (event.currentTarget || event.target) as Element;
+        element.classList.remove('active');
       },
-      tilt (event) {
-        const card = event.currentTarget || event.target;
+      tilt (event: MouseEvent) {
+        const card = (event.currentTarget || event.target) as Element;
         const { width, height, top, bottom, left, right } = card.getBoundingClientRect();
         const halfWayX = (right - left) / 2;
         const halfWayY = (bottom - top) / 2;
@@ -37,6 +44,9 @@
         this._rotateY = `rotateY(${rotateY}deg)`;
         this._rotateZ = `rotateZ(${rotateZ}deg)`;
       },
+      setKey (prefix: string, suffix: string | number) {
+        return `${prefix}-${suffix.toString().replace(/\s/g, '-')}`
+      }
     },
     computed: {
       rotateX () {
@@ -53,9 +63,9 @@
       },
       genres () {
         /* This should normally live in a middleware/BFF service, but for this demo I am keeping it here to avoid going too overkill in terms of effort */
-        const genres = {};
-        this.store.today?.forEach?.(({ show, airtime, id, name }) => {
-          show.genres.forEach((genre) => {
+        const genres: any = {};
+        this.store.today?.forEach?.(({ show, airtime, id, name }: any) => {
+          show.genres.forEach((genre: string) => {
             if (!genres[genre]) {
               genres[genre] = [];
             }
@@ -88,17 +98,17 @@
       </section>
       <section class="recommendations">
         <h2>What's on Today?</h2>
-        <article v-for="(genre, name) in genres" class="gallery">
+        <article v-for="(genre, name) in genres" class="gallery" :key="setKey('article', name)">
           <h3 class="gallery__title">{{ name }}</h3>
           <div class="gallery__wrapper">
             <button class="carousel-arrow fa fa-angle-left"></button>
             <ul class="gallery__itemlist">
-              <li v-for="show in genre" class="gallery__item">
+              <li v-for="(show, index) in genre" class="gallery__item" :key="index">
                 <RouterLink class="item__3dwrapper" @mousemove="tilt" @mouseenter="onEnter" @mouseleave="onLeave" :to="`/shows/${show.episodeId}`">
                   <img :src="show?.image?.original" class="item__image" />
                   <div class="item__info">
                     {{ show.name }}
-                    <p>&quot{{ show.episodeName }}&quot</p>
+                    <p>&quot;{{ show.episodeName }}&quot;</p>
                     <p>- Airs at {{ show.airtime }}</p>
                   </div>
                 </RouterLink>

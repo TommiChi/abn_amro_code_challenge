@@ -1,13 +1,25 @@
 <script setup lang="ts">
-  import { RouterLink } from 'vue-router';
   import { useShowsStore } from '../stores/shows';
-  import { useRoute } from 'vue-router';
 </script>
 
 <script lang="ts">
+  type IEpisode = {
+    show: {
+      [key: string]: any;
+    };
+    airtime: string;
+    id: string;
+    name: string;
+  };
+
+  type IStore = {
+    selectedEpisode: { [key: string]: any; };
+    today: { [key: string]: any; };
+  };
+
   export default {
     data() {
-      const store = useShowsStore();
+      const store: IStore = useShowsStore();
       return {
         store,
         _rotateX: 'rotateX(0)',
@@ -16,15 +28,16 @@
       };
     },
     methods: {
-      onEnter (event) {
-        console.warn('$$$$$$$$$$$\n', event);
-        (event.currentTarget || event.target).classList.add('active');
+      onEnter (event: MouseEvent) {
+        const element = (event.currentTarget || event.target) as Element;
+        element.classList.add('active');
       },
-      onLeave (event){
-        (event.currentTarget || event.target).classList.remove('active');
+      onLeave (event: MouseEvent){
+        const element = (event.currentTarget || event.target) as Element;
+        element.classList.remove('active');
       },
-      tilt (event) {
-        const card = event.currentTarget || event.target;
+      tilt (event: MouseEvent) {
+        const card = (event.currentTarget || event.target) as Element;
         const { width, height, top, bottom, left, right } = card.getBoundingClientRect();
         const halfWayX = (right - left) / 2;
         const halfWayY = (bottom - top) / 2;
@@ -41,7 +54,7 @@
     },
     computed: {
       rotateX () {
-        return this._rotateX;
+        return this._rotateX!;
       },
       rotateY () {
         return this._rotateY;
@@ -50,13 +63,13 @@
         return this._rotateZ;
       },
       bgImage () {
-        return `linear-gradient(0deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.8) 30%, rgba(255, 255, 255, 1) 100%), url(${this.store.selectedEpisode?.show?.image?.original})`;
+        return `linear-gradient(0deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.8) 30%, rgba(255, 255, 255, 1) 100%), url(${this.store?.selectedEpisode?.show?.image?.original})`;
       },
       genres () {
         /* This should normally live in a middleware/BFF service, but for this demo I am keeping it here to avoid going too overkill in terms of effort */
-        const genres = {};
-        this.store.today?.forEach?.(({ show, airtime, id, name }) => {
-          show.genres.forEach((genre) => {
+        const genres: { [key: string]: any; } = {};
+        this.store.today?.forEach?.(({ show, airtime, id, name }: IEpisode) => {
+          show.genres.forEach((genre: string) => {
             if (!genres[genre]) {
               genres[genre] = [];
             }
@@ -90,28 +103,6 @@
         <p>{{ store.selectedEpisode?.show?.summary?.replace(/(\<\w+\>)|(\<\/\w+\>)/g, '') }}</p>
         <a :href="store.selectedEpisode?.show?.officialSite" class="button" target="_blank">WATCH IT NOW</a>
       </section>
-
-
-      <!-- <section class="recommendations">
-        <h2>What's on Today?</h2>
-        <article v-for="(genre, name) in genres" class="gallery">
-          <h3 class="gallery__title">{{ name }}</h3>
-          <div class="gallery__wrapper">
-            <ul class="gallery__itemlist">
-              <li v-for="show in genre" class="gallery__item">
-                <RouterLink class="item__3dwrapper" @mousemove="tilt" @mouseenter="onEnter" @mouseleave="onLeave" :to="`/shows/${show.scheduleId}`">
-                  <img :src="show?.image?.original" class="item__image" />
-                  <div class="item__info">
-                    {{ show.name }}
-                    <p>&quot{{ show.episodeName }}&quot</p>
-                    <p>- Airs at {{ show.airtime }}</p>
-                  </div>
-                </RouterLink>
-              </li>
-            </ul>
-          </div>
-        </article>
-      </section> -->
     </main>
   </template>
   

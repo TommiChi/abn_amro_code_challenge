@@ -6,7 +6,8 @@ export function login () {
   return new Promise((resolve, reject) => {
     signInWithPopup(auth, provider)
     .then((result) => {
-      resolve(result.user);
+      const { user } = result;
+      resolve(user);
     }).catch((error) => {
       reject(error);
     });
