@@ -22,8 +22,8 @@
     },
     methods: {
       initialise() {
-        const randomShow: IShow = this.store.shows[Math.floor(Math.random() * this.store.shows.length)];
         this.store.fetchShows().then(() => {
+          const randomShow: IShow = this.store.shows[Math.floor(Math.random() * this.store.shows.length)];
           this.bgImage = `linear-gradient(45deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.2) 100%), url(/svg/ABN-AMRO_Logo_new_colors.svg), linear-gradient(45deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.5) 100%), url(${randomShow.image.original})`;
         })
       },

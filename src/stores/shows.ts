@@ -20,7 +20,7 @@ export const useShowsStore = defineStore('shows', {
   },
   actions: {
     fetchShows () {
-      if (this._shows) {
+      if (this._shows.length > 0) {
         return Promise.resolve(this._shows);
       }
 
