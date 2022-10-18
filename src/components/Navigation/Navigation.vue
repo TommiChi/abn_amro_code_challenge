@@ -47,6 +47,7 @@
 
     &.root-home {
       box-shadow: none;
+      background-color: transparent;
     }
   }
 
