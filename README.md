@@ -23,3 +23,4 @@ The whole idea of introducing Google authentication is to demonstrate in a very 
 ### Routing
 I wanted the components to be as dumb as possible so that they could be reused in as many situations as possible. As a result, all data fetching, store updates, and other such business logic are done on the router level, while the route is being mounted. In a full blown project, I would probably have something like a BFF/middleware layer (either in the codebase or in the CMS) that would work in conjuction with the router to fetch the correct data
 
+### Testing
