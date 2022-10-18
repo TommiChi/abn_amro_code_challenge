@@ -39,6 +39,8 @@ router.beforeEach(route => {
   store.setDetailsPath(route.fullPath);
   if (route.fullPath !== '/' && !isLoggedIn()) {
     router.replace('/');
+  } else if (route.fullPath === '' && isLoggedIn()) {
+    router.replace('/showsguide');
   }
 });
 
