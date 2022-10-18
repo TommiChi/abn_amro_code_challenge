@@ -6,7 +6,7 @@
     threshold: 0.01
   };
 
-  function asyncImageLoad (src: string, data) {
+  function asyncImageLoad (src: string, data: { src: string; loading: boolean; }): void {
     const asyncLoaded: HTMLImageElement = new Image();
     asyncLoaded.onload = () => {
       data.src = src || '';

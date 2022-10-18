@@ -4,26 +4,6 @@
 </script>
 
 <script lang="ts">
-  const observerOptions = {
-    threshold: 0.01
-  };
-
-  function observerCallback (src: string, entries: IntersectionObserverEntry[]) {
-    entries.forEach((entry: IntersectionObserverEntry) => {
-      
-      if (entry.isIntersecting) {
-        const asyncLoaded: HTMLImageElement = new Image();
-        asyncLoaded.onload = () => {
-          this.$data.src = src || '';
-          this.$data.loading = false;
-        }
-        asyncLoaded.src = src || '';
-
-        this.$data.observer.unobserve(entry.target);
-      }
-    });
-  }
-      
   export default {
     props: ['carouselData'],
     data() {
