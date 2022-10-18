@@ -44,9 +44,6 @@
       }
     },
     methods: {
-      b () {
-        console.warn('??????????\n', this)
-      }
     },
     mounted() {
       if (this.observer) {

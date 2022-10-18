@@ -37,9 +37,10 @@ const router = createRouter({
 router.beforeEach(route => {
   const store = useShowsStore();
   store.setDetailsPath(route.fullPath);
+
   if (route.fullPath !== '/' && !isLoggedIn()) {
     router.replace('/');
-  } else if (route.fullPath === '' && isLoggedIn()) {
+  } else if (route.fullPath === '/' && isLoggedIn()) {
     router.replace('/showsguide');
   }
 });

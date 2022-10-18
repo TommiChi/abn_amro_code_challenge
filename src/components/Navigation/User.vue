@@ -15,9 +15,8 @@
     },
     methods: {
       login() {
-        const _this = this;
         this.store.login().then(() => {
-          _this.router.push('showsguide');
+          this.router.push('/showsguide');
         });
       },
       logout() {
