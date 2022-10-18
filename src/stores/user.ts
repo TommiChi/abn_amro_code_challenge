@@ -32,7 +32,7 @@ export const useUserStore = defineStore('user', {
       });
     },
     logout() {
-      logout().then(() => {
+      return logout().then(() => {
         this._isLoggedIn = false;
       });
     },

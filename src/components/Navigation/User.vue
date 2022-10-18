@@ -20,8 +20,9 @@
         });
       },
       logout() {
-        this.store.logout();
-        this.router.push('/')
+        this.store.logout().then(() => {
+          this.router.push('/');
+        });
       },
     },
     beforeMount() {
